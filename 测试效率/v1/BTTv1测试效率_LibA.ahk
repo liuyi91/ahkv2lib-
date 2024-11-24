@@ -64,7 +64,7 @@ Del::
 runV1:
 	{
 		btt(Text,,,,OwnzztooltipStyle1,{Transparent:180,DistanceBetweenMouseXAndToolTip:-100,DistanceBetweenMouseYAndToolTip:-20})
-		SetTimer OwnzztooltipEnd ,-3000
+		;SetTimer OwnzztooltipEnd ,-3000
 	}
 	;btt(Text,,,,"OwnzztooltipStyle1",{Transparent:v})
 

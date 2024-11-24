@@ -2,15 +2,6 @@
 #SingleInstance Force
 ;SetBatchLines -1
 #Include BTTv2.ahk
-btttxt:="
-(
-使用模板可以轻松创建自己的风格。
-欢迎分享，带张截图！！！
-Use template to easily create your own style.
-Please share your custom style and include a screenshot.
-It will help a lot of people.
-BTTv2测试效率_LibA
-)"
 ;样式1：用于正则工具完成情况提示
 OwnzztooltipStyle1 := {Border:1
   , Rounded:2
@@ -55,17 +46,27 @@ Style99 :=  {Border:20                                      ; If omitted, 1 will
   , FontRender:5                                   ; If omitted, 5 will be used. Range 0-5.
   , FontStyle:"Regular Bold Italic BoldItalic Underline Strikeout"}
 
-  Ins::
+btttxt:="
+(
+使用模板可以轻松创建自己的风格。
+欢迎分享，带张截图！！！
+Use template to easily create your own style.
+Please share your custom style and include a screenshot.
+It will help a lot of people.
+BTTv2测试效率_LibA
+)"
+
+Ins::
   {
     SetTimer runV2, 10
     Return
   }
   
   runV2()
-{
+  {
     btt(btttxt,,,,OwnzztooltipStyle1,{Transparent:180,DistanceBetweenMouseXAndToolTip:-100,DistanceBetweenMouseYAndToolTip:-20})
-    SetTimer OwnzztooltipEnd ,-3000
-}
+    ;SetTimer OwnzztooltipEnd ,-3000
+  }
 
   OwnzztooltipEnd()
   {
