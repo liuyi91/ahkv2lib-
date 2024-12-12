@@ -18,7 +18,9 @@ OwnzztooltipStyle1 := {Border:1
 	, FontSize:16
 	, TextColor:0xFFFFFFFF    ;0xffd9d9db
 	, BackgroundColor:0xFF000000  ;0xff26293a
-  , FontStyle:"Regular"}
+  	, FontStyle:"Regular"
+	, Align: 1 ; 0 = Left aligned, 1 = Center aligned, 2 = Right aligned
+}
   
 ;样式2：用于正则工具控件功能提示
 OwnzztooltipStyle2 := {Border:1
@@ -517,7 +519,7 @@ Class BeautifulToolTip extends Map
     for k, v in Options.TabStops
       TabStops.Push(v * Options.DPIScale)
     Gdip_SetStringFormatTabStops(hStringFormat, TabStops)                      ; 设置 TabStops
-    Gdip_SetStringFormatAlign(hStringFormat, Align:=0)                         ; 设置左对齐
+    Gdip_SetStringFormatAlign(hStringFormat, Align:=Options.Align)             ; 设置左对齐
     Gdip_SetTextRenderingHint(pGraphics, Options.FontRender)                   ; 设置渲染模式
     ;=CreateRectF(RC
     CreateRectF(&RC
@@ -579,7 +581,8 @@ Class BeautifulToolTip extends Map
       , O.Font            :=Styles.HasOwnProp("Font") ?   this.NonNull_Ret(Styles.Font           , this.ToolTipFontName, "", "") : this.ToolTipFontName ; 字体      默认与 ToolTip 一致
       , O.FontSize        :=Styles.HasOwnProp("FontSize") ?   this.NonNull_Ret(Styles.FontSize       , 12                  , "", "") : 12 ; 字号      默认12
       , O.FontRender      :=Styles.HasOwnProp("FontRender") ?   this.NonNull_Ret(Styles.FontRender     , 5                   , 0 , 5 ) : 5  ; 渲染模式  默认5 0-5
-      , O.FontStyle       :=Styles.HasOwnProp("FontStyle") ?   Styles.FontStyle  : ""                                                      ; 字体样式  默认无
+      , O.FontStyle       :=Styles.HasOwnProp("FontStyle") ?	Styles.FontStyle  : ""                                                      ; 字体样式  默认无
+      , O.Align		  :=Styles.HasOwnProp("Align") ?	Styles.Align ? 0 ; Adds option for settings alignment, defaults to left-aligned
 
       ; 名字太长，建个缩写副本。
       , O.BCLGS  :=Styles.HasOwnProp("BorderColorLinearGradientStart") ?   Styles.BorderColorLinearGradientStart : ""                                           ; 细边框渐变色    默认无
