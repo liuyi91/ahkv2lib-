@@ -582,7 +582,7 @@ Class BeautifulToolTip extends Map
       , O.FontSize        :=Styles.HasOwnProp("FontSize") ?   this.NonNull_Ret(Styles.FontSize       , 12                  , "", "") : 12 ; 字号      默认12
       , O.FontRender      :=Styles.HasOwnProp("FontRender") ?   this.NonNull_Ret(Styles.FontRender     , 5                   , 0 , 5 ) : 5  ; 渲染模式  默认5 0-5
       , O.FontStyle       :=Styles.HasOwnProp("FontStyle") ?	Styles.FontStyle  : ""                                                      ; 字体样式  默认无
-      , O.Align		  :=Styles.HasOwnProp("Align") ?	Styles.Align ? 0 ; Adds option for settings alignment, defaults to left-aligned
+      , O.Align		  :=Styles.HasOwnProp("Align") ?	Styles.Align : 0 ; Adds option for settings alignment, defaults to left-aligned
 
       ; 名字太长，建个缩写副本。
       , O.BCLGS  :=Styles.HasOwnProp("BorderColorLinearGradientStart") ?   Styles.BorderColorLinearGradientStart : ""                                           ; 细边框渐变色    默认无
