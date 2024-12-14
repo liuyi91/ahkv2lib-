@@ -1,4 +1,10 @@
-﻿btttxt:="
+;fix Extended Desktop issues
+;add Align Opt       @github:The-CoDingman
+
+;BTT Author: telppa  https://github.com/telppa/BeautifulToolTip
+;BTT v2 Converter: @github:liuyi91
+
+str:="
 (
 使用模板可以轻松创建自己的风格。
 欢迎分享，带张截图！！！
@@ -7,7 +13,8 @@ Use template to easily create your own style.
 Please share your custom style and include a screenshot.
 It will help a lot of people.
 )"
-;样式1：用于正则工具完成情况提示
+
+;样式1
 OwnzztooltipStyle1 := {Border:1
 	, Rounded:2
 	, Margin:8
@@ -18,9 +25,11 @@ OwnzztooltipStyle1 := {Border:1
 	, FontSize:16
 	, TextColor:0xFFFFFFFF    ;0xffd9d9db
 	, BackgroundColor:0xFF000000  ;0xff26293a
-  , FontStyle:"Regular"}
+  , FontStyle:"Regular"
+  , Align: 0 ; 0 = Left aligned, 1 = Center aligned, 2 = Right aligned
+}
   
-;样式2：用于正则工具控件功能提示
+;样式2
 OwnzztooltipStyle2 := {Border:1
 		  , Rounded:8
 		  , TextColor:0xfff4f4f4
@@ -51,21 +60,20 @@ OwnzztooltipStyle2 := {Border:1
         , FontRender:5                                   ; If omitted, 5 will be used. Range 0-5.
         , FontStyle:"Regular Bold Italic BoldItalic Underline Strikeout"}
 
-	btt(btttxt,,,,OwnzztooltipStyle1,{Transparent:180,DistanceBetweenMouseXAndToolTip:-100,DistanceBetweenMouseYAndToolTip:-20})
-  SetTimer OwnzztooltipEnd ,-3000
+
+btt(str,,,,OwnzztooltipStyle1,{Transparent:180,DistanceBetweenMouseXAndToolTip:-100,DistanceBetweenMouseYAndToolTip:-20})
+SetTimer tooltipEnd,-3000
   
-OwnzztooltipEnd()
+tooltipEnd()
 {
-   btt()
-   ExitApp
+  btt()
+  ExitApp
 }
 
 
 
-
-
-;=======================================================BTT v2库================================================================
-;BTT转v2 by城西 2022.6.18 https://github.com/liuyi91   ：初步测试支持thqby大佬的 v2 beta4
+;============================BTT v2库=====================================================
+;BTT v1转v2 by城西 2022.6.18 https://github.com/liuyi91   ：初步测试支持thqby大佬的 v2 beta4
 ;感谢大佬thqby的悉心指点 https://github.com/thqby/
 ;BTT作者v1：https://github.com/telppa/BeautifulToolTip
 
@@ -517,7 +525,8 @@ Class BeautifulToolTip extends Map
     for k, v in Options.TabStops
       TabStops.Push(v * Options.DPIScale)
     Gdip_SetStringFormatTabStops(hStringFormat, TabStops)                      ; 设置 TabStops
-    Gdip_SetStringFormatAlign(hStringFormat, Align:=0)                         ; 设置左对齐
+    ;Gdip_SetStringFormatAlign(hStringFormat, Align:=0)                         ; 设置左对齐
+    Gdip_SetStringFormatAlign(hStringFormat, Options.Align)                      ; 设置对齐
     Gdip_SetTextRenderingHint(pGraphics, Options.FontRender)                   ; 设置渲染模式
     ;=CreateRectF(RC
     CreateRectF(&RC
@@ -580,6 +589,7 @@ Class BeautifulToolTip extends Map
       , O.FontSize        :=Styles.HasOwnProp("FontSize") ?   this.NonNull_Ret(Styles.FontSize       , 12                  , "", "") : 12 ; 字号      默认12
       , O.FontRender      :=Styles.HasOwnProp("FontRender") ?   this.NonNull_Ret(Styles.FontRender     , 5                   , 0 , 5 ) : 5  ; 渲染模式  默认5 0-5
       , O.FontStyle       :=Styles.HasOwnProp("FontStyle") ?   Styles.FontStyle  : ""                                                      ; 字体样式  默认无
+      , O.Align		  :=Styles.HasOwnProp("Align") ?	Styles.Align : 0 ; Adds option for settings alignment, defaults to left-aligned
 
       ; 名字太长，建个缩写副本。
       , O.BCLGS  :=Styles.HasOwnProp("BorderColorLinearGradientStart") ?   Styles.BorderColorLinearGradientStart : ""                                           ; 细边框渐变色    默认无
@@ -673,8 +683,34 @@ Class BeautifulToolTip extends Map
       ; 为什么 1920,1080 是错误的呢？因为 1920 是宽度，而坐标起点是0，所以最右边坐标值是 1919，最下面是 1079。
       ;=, hMonitor     := MDMF_FromPoint(DisplayX, DisplayY, MONITOR_DEFAULTTONEAREST:=2)
       , hMonitor     := MDMF_FromPoint(&DisplayX, &DisplayY, MONITOR_DEFAULTTONEAREST:=2)
-      , TargetLeft   := this.Monitors[hMonitor].Left
-      , TargetTop    := this.Monitors[hMonitor].Top
+try					;2024.10.12修复关闭扩展桌面时报错的问题
+      	TargetLeft   := this.Monitors[hMonitor].Left
+catch
+{
+          ; 多显示器支持
+          this.Monitors := MDMF_Enum()
+          ; 获取多显示器各自 DPI 缩放比例
+          for hMonitor, v in this.Monitors.Clone()
+          {
+            if (hMonitor="TotalCount" or hMonitor="Primary")
+              continue
+            ; https://github.com/Ixiko/AHK-libs-and-classes-collection/blob/e421acb801867edb659a54b7473e6e617f2b267b/libs/g-n/Monitor.ahk
+            ; ahk 源码里 A_ScreenDPI 就是只获取了 dpiX ，所以这里保持一致
+            osv := StrSplit(A_OSVersion, ".")               ; https://docs.microsoft.com/en-us/windows-hardware/drivers/ddi/content/wdm/ns-wdm-_osversioninfoexw
+            if (osv[1] < 6 || (osv[1] == 6 && osv[2] < 3))  ; WIN_8- 。Win7 必须用这种方式，否则会出错
+            {
+              ;=hDC  := DllCall("Gdi32.dll\CreateDC", "Str", hMonitor.name, "Ptr", 0, "Ptr", 0, "Ptr", 0, "Ptr")
+              hDC  := DllCall("Gdi32.dll\CreateDC", "Str", v.name, "Ptr", 0, "Ptr", 0, "Ptr", 0, "Ptr")
+              dpiX := DllCall("Gdi32.dll\GetDeviceCaps", "Ptr", hDC, "Int", 88) ; LOGPIXELSX = 88
+              DllCall("Gdi32.dll\DeleteDC", "Ptr", hDC)
+            }
+           else
+              DllCall("Shcore.dll\GetDpiForMonitor", "Ptr", hMonitor, "Int", 0, "UIntP", &dpiX:=0, "UIntP", &dpiY:=0, "UInt")   ;原文这个type没设置数字
+            this.Monitors[hMonitor].DPIScale := this.NonNull_Ret(dpiX, A_ScreenDPI)/96
+          }
+          TargetLeft   := this.Monitors[hMonitor].Left
+}
+      TargetTop    := this.Monitors[hMonitor].Top
       , TargetRight  := this.Monitors[hMonitor].Right
       , TargetBottom := this.Monitors[hMonitor].Bottom
       , TargetWidth  := TargetRight-TargetLeft
